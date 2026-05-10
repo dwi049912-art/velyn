@@ -29,8 +29,8 @@ const client = new Client({
   ]
 });
 
-const GUILD_ID = "ISI_ID_SERVER";
-const VOICE_CHANNEL_ID = "ISI_ID_VOICE_CHANNEL";
+const GUILD_ID = "489687951253700619";
+const VOICE_CHANNEL_ID = "1488854856633680083";
 
 let connection;
 
