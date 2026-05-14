@@ -1,13 +1,13 @@
 {
   "name": "discord-vc-bot",
   "version": "1.0.0",
-  "description": "Bot Discord auto join voice + welcome",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
     "@discordjs/voice": "^0.17.0",
+    "@napi-rs/canvas": "^0.1.68",
     "discord.js": "^14.15.3",
     "express": "^4.19.2"
   }
