@@ -126,7 +126,7 @@ client.on("guildMemberAdd", async (member) => {
 
     await channel.send({
       content:
-`Halo ${member} Selamat datang di BETHLEHEM!
+`Halo ${member} Selamat datang di server!
 
 > Baca <#${README_ID}> terlebih dahulu dan ambil role disini <#${ROLE_ID}>
 > Jangan lupa mengisi data diri kalian di sini <#${INTRO_ID}> ya.
