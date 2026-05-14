@@ -1,20 +1,14 @@
 const express = require("express");
 const app = express();
 
-app.get("/", (req, res) => {
-  res.send("Bot aktif!");
-});
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("Web server jalan");
-});
+app.get("/", (req, res) => res.send("Bot aktif!"));
+app.listen(process.env.PORT || 3000, "0.0.0.0");
 
 const {
   Client,
   GatewayIntentBits,
-  EmbedBuilder
+  EmbedBuilder,
+  AttachmentBuilder
 } = require("discord.js");
 
 const {
@@ -22,6 +16,8 @@ const {
   entersState,
   VoiceConnectionStatus
 } = require("@discordjs/voice");
+
+const { createCanvas, loadImage } = require("@napi-rs/canvas");
 
 const client = new Client({
   intents: [
@@ -34,63 +30,95 @@ const client = new Client({
 const GUILD_ID = "489687951253700619";
 const VOICE_CHANNEL_ID = "1488854856633680083";
 const WELCOME_CHANNEL_ID = "1488377288092287280";
+const README_ID = "1488136899297153176";
+const ROLE_ID = "1488135944371572866";
+const INTRO_ID = "1492441547583524954";
 
 let connection;
 
 async function joinVC() {
-  try {
-    const guild = client.guilds.cache.get(GUILD_ID);
-    if (!guild) return;
+  const guild = client.guilds.cache.get(GUILD_ID);
+  if (!guild) return;
+  const channel = guild.channels.cache.get(VOICE_CHANNEL_ID);
+  if (!channel) return;
 
-    const channel = guild.channels.cache.get(VOICE_CHANNEL_ID);
+  connection = joinVoiceChannel({
+    channelId: channel.id,
+    guildId: guild.id,
+    adapterCreator: guild.voiceAdapterCreator
+  });
+
+  connection.on(VoiceConnectionStatus.Disconnected, async () => {
+    try {
+      await entersState(connection, VoiceConnectionStatus.Signalling, 5000);
+    } catch {
+      setTimeout(joinVC, 5000);
+    }
+  });
+}
+
+client.once("ready", () => {
+  console.log(`${client.user.tag} online`);
+  joinVC();
+});
+
+client.on("guildMemberAdd", async (member) => {
+  try {
+    const channel = member.guild.channels.cache.get(WELCOME_CHANNEL_ID);
     if (!channel) return;
 
-    connection = joinVoiceChannel({
-      channelId: channel.id,
-      guildId: guild.id,
-      adapterCreator: guild.voiceAdapterCreator,
-      selfDeaf: true,
-      selfMute: false
+    const canvas = createCanvas(900, 350);
+    const ctx = canvas.getContext("2d");
+
+    const bg = await loadImage("./welcome-bg.png");
+    ctx.drawImage(bg, 0, 0, 900, 350);
+
+    const avatar = await loadImage(
+      member.user.displayAvatarURL({ extension: "png", size: 256 })
+    );
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(450, 105, 62, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(avatar, 388, 43, 124, 124);
+    ctx.restore();
+
+    ctx.font = "bold 48px sans-serif";
+    ctx.fillStyle = "#f1c40f";
+    ctx.textAlign = "center";
+    ctx.fillText("WELCOME", 450, 260);
+
+    ctx.font = "bold 24px sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(member.user.username.toUpperCase(), 450, 295);
+
+    const attachment = new AttachmentBuilder(await canvas.encode("png"), {
+      name: "welcome.png"
     });
 
-    connection.on(VoiceConnectionStatus.Disconnected, async () => {
-      try {
-        await entersState(connection, VoiceConnectionStatus.Signalling, 5000);
-      } catch {
-        setTimeout(() => joinVC(), 5000);
-      }
+    const embed = new EmbedBuilder()
+      .setColor("#f1c40f")
+      .setImage("attachment://welcome.png")
+      .setFooter({
+        text: `© ${new Date().toLocaleString("id-ID")}`
+      });
+
+    await channel.send({
+      content:
+`Halo ${member} Selamat datang di server!
+
+> Baca <#${README_ID}> terlebih dahulu dan ambil role disini <#${ROLE_ID}>
+> Jangan lupa mengisi data diri kalian di sini <#${INTRO_ID}> ya.
+> Jika ada kendala langsung tanya kepada **ADMIN/PENJAGA** kami`,
+      embeds: [embed],
+      files: [attachment]
     });
 
   } catch (err) {
     console.log(err);
   }
-}
-
-client.once("ready", () => {
-  console.log(`${client.user.tag} online!`);
-  joinVC();
-});
-
-client.on("guildMemberAdd", async (member) => {
-  const channel = member.guild.channels.cache.get(WELCOME_CHANNEL_ID);
-  if (!channel) return;
-
-  const embed = new EmbedBuilder()
-    .setColor("#f1c40f")
-    .setImage("https://i.imgur.com/lUI9fC4.png")
-    .setFooter({
-      text: `© ${new Date().toLocaleString("id-ID")}`
-    });
-
-  channel.send({
-    content:
-`Halo ${member} Selamat datang di BETLEHEM!
-
-> Baca <#1488136899297153176> terlebih dahulu dan ambil role disini <#1488135944371572866>
-> Jangan lupa mengisi data diri kalian di sini <#1492441547583524954> ya.
-> Jika ada kendala langsung tanya kepada ADMIN/PENJAGA kami`,
-    embeds: [embed]
-  });
 });
 
 client.login(process.env.TOKEN);
