@@ -39,6 +39,7 @@ let connection;
 async function joinVC() {
   const guild = client.guilds.cache.get(GUILD_ID);
   if (!guild) return;
+
   const channel = guild.channels.cache.get(VOICE_CHANNEL_ID);
   if (!channel) return;
 
@@ -74,25 +75,39 @@ client.on("guildMemberAdd", async (member) => {
     ctx.drawImage(bg, 0, 0, 900, 350);
 
     const avatar = await loadImage(
-      member.user.displayAvatarURL({ extension: "png", size: 256 })
+      member.user.displayAvatarURL({ extension: "png", size: 512 })
     );
 
+    // FOTO USER
     ctx.save();
     ctx.beginPath();
-    ctx.arc(450, 105, 62, 0, Math.PI * 2);
+    ctx.arc(450, 105, 82, 0, Math.PI * 2);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(avatar, 388, 43, 124, 124);
+    ctx.drawImage(avatar, 368, 23, 164, 164);
     ctx.restore();
 
-    ctx.font = "bold 48px sans-serif";
+    // BORDER EMAS
+    ctx.beginPath();
+    ctx.arc(450, 105, 85, 0, Math.PI * 2);
+    ctx.strokeStyle = "#f1c40f";
+    ctx.lineWidth = 5;
+    ctx.stroke();
+
+    // SHADOW
+    ctx.shadowColor = "#000000";
+    ctx.shadowBlur = 10;
+
+    // WELCOME BESAR
+    ctx.font = "bold 64px sans-serif";
     ctx.fillStyle = "#f1c40f";
     ctx.textAlign = "center";
-    ctx.fillText("WELCOME", 450, 260);
+    ctx.fillText("WELCOME", 450, 245);
 
-    ctx.font = "bold 24px sans-serif";
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText(member.user.username.toUpperCase(), 450, 295);
+    // NAMA USER
+    ctx.font = "bold 26px sans-serif";
+    ctx.fillStyle = "#f1c40f";
+    ctx.fillText(member.user.username.toUpperCase(), 450, 285);
 
     const attachment = new AttachmentBuilder(await canvas.encode("png"), {
       name: "welcome.png"
@@ -102,7 +117,7 @@ client.on("guildMemberAdd", async (member) => {
       .setColor("#f1c40f")
       .setImage("attachment://welcome.png")
       .setFooter({
-        text: `© ${new Date().toLocaleString("id-ID")}`
+        text: `Copyright ©️2018 - BTHL | ${new Date().toLocaleString("id-ID")}`
       });
 
     await channel.send({
