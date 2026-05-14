@@ -95,23 +95,23 @@ client.on("guildMemberAdd", async (member) => {
     ctx.stroke();
 
     // OVERLAY GELAP
-    ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
-    ctx.fillRect(250, 205, 400, 110);
+    ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+    ctx.fillRect(220, 200, 460, 115);
 
-    // SHADOW
-    ctx.shadowColor = "#000000";
-    ctx.shadowBlur = 8;
+    // RESET SHADOW
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = "transparent";
 
     // WELCOME
-    ctx.font = "bold 62px sans-serif";
     ctx.fillStyle = "#FFD700";
     ctx.textAlign = "center";
+    ctx.font = "bold 68px Arial";
     ctx.fillText("WELCOME", 450, 255);
 
     // USERNAME
-    ctx.font = "bold 28px sans-serif";
     ctx.fillStyle = "#ffffff";
-    ctx.fillText(member.user.username.toUpperCase(), 450, 295);
+    ctx.font = "bold 30px Arial";
+    ctx.fillText(member.user.username.toUpperCase(), 450, 300);
 
     const attachment = new AttachmentBuilder(await canvas.encode("png"), {
       name: "welcome.png"
@@ -126,7 +126,7 @@ client.on("guildMemberAdd", async (member) => {
 
     await channel.send({
       content:
-`Halo ${member} Selamat datang di server!
+`Halo ${member} Selamat datang di BETHLEHEM!
 
 > Baca <#${README_ID}> terlebih dahulu dan ambil role disini <#${ROLE_ID}>
 > Jangan lupa mengisi data diri kalian di sini <#${INTRO_ID}> ya.
