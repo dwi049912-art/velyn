@@ -1,7 +1,7 @@
 {
   "name": "discord-vc-bot",
   "version": "1.0.0",
-  "description": "Bot Discord auto join voice channel",
+  "description": "Bot Discord auto join voice channel + welcome",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -9,6 +9,7 @@
   "dependencies": {
     "@discordjs/voice": "^0.17.0",
     "discord.js": "^14.15.3",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "canvas": "^2.11.2"
   }
 }
