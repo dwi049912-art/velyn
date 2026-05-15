@@ -75,7 +75,7 @@ client.on("guildMemberAdd", async (member) => {
     const bg = await loadImage("./welcome-bg.png");
     ctx.drawImage(bg, 0, 0, 900, 350);
 
-    // avatar
+    // avatar user
     const avatar = await loadImage(
       member.user.displayAvatarURL({ extension: "png", size: 512 })
     );
@@ -88,18 +88,18 @@ client.on("guildMemberAdd", async (member) => {
     ctx.drawImage(avatar, 368, 23, 164, 164);
     ctx.restore();
 
-    // border emas
+    // border avatar
     ctx.beginPath();
     ctx.arc(450, 105, 85, 0, Math.PI * 2);
     ctx.strokeStyle = "#f1c40f";
     ctx.lineWidth = 5;
     ctx.stroke();
 
-    // tulisan WELCOME dari png
+    // tulisan WELCOME (png)
     const welcomeText = await loadImage("./welcome-text.png");
-    ctx.drawImage(welcomeText, 285, 190, 330, 90);
+    ctx.drawImage(welcomeText, 285, 185, 330, 85);
 
-    // nama user di gambar (SVG)
+    // nama user di gambar
     const safeName = member.user.username
       .toUpperCase()
       .replace(/&/g, "&amp;")
@@ -108,13 +108,13 @@ client.on("guildMemberAdd", async (member) => {
 
     const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="900" height="350">
-      <text x="450" y="300"
+      <text x="450" y="295"
             text-anchor="middle"
-            font-size="28"
+            font-size="26"
             font-weight="bold"
             fill="#f1c40f"
             font-family="Arial">
-            ${safeName}
+        ${safeName}
       </text>
     </svg>`;
 
