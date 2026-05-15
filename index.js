@@ -94,13 +94,35 @@ client.on("guildMemberAdd", async (member) => {
     ctx.lineWidth = 5;
     ctx.stroke();
 
-    // welcome-text png optional
+    // welcome png
     try {
       const welcomeText = await loadImage("./welcome-text.png");
-      ctx.drawImage(welcomeText, 285, 185, 330, 85);
+      ctx.drawImage(welcomeText, 285, 205, 330, 85);
     } catch {
       console.log("welcome-text.png tidak ditemukan / unsupported");
     }
+
+    // username di gambar
+    const safeName = member.user.username
+      .toUpperCase()
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="900" height="350">
+      <text x="450" y="190"
+            text-anchor="middle"
+            font-size="28"
+            font-weight="bold"
+            fill="#f1c40f"
+            font-family="Arial, sans-serif">
+        ${safeName}
+      </text>
+    </svg>`;
+
+    const nameImg = await loadImage(Buffer.from(svg));
+    ctx.drawImage(nameImg, 0, 0);
 
     const attachment = new AttachmentBuilder(await canvas.encode("png"), {
       name: "welcome.png"
