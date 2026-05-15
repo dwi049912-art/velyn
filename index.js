@@ -58,7 +58,7 @@ async function joinVC() {
   });
 }
 
-client.once("ready", () => {
+client.once("clientReady", () => {
   console.log(`${client.user.tag} online`);
   joinVC();
 });
@@ -71,15 +71,14 @@ client.on("guildMemberAdd", async (member) => {
     const canvas = createCanvas(900, 350);
     const ctx = canvas.getContext("2d");
 
-    // background
     const bg = await loadImage("./welcome-bg.png");
     ctx.drawImage(bg, 0, 0, 900, 350);
 
-    // avatar user
     const avatar = await loadImage(
       member.user.displayAvatarURL({ extension: "png", size: 512 })
     );
 
+    // avatar bulat
     ctx.save();
     ctx.beginPath();
     ctx.arc(450, 105, 82, 0, Math.PI * 2);
@@ -88,38 +87,20 @@ client.on("guildMemberAdd", async (member) => {
     ctx.drawImage(avatar, 368, 23, 164, 164);
     ctx.restore();
 
-    // border avatar
+    // border emas
     ctx.beginPath();
     ctx.arc(450, 105, 85, 0, Math.PI * 2);
     ctx.strokeStyle = "#f1c40f";
     ctx.lineWidth = 5;
     ctx.stroke();
 
-    // tulisan WELCOME (png)
-    const welcomeText = await loadImage("./welcome-text.png");
-    ctx.drawImage(welcomeText, 285, 185, 330, 85);
-
-    // nama user di gambar
-    const safeName = member.user.username
-      .toUpperCase()
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-
-    const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="900" height="350">
-      <text x="450" y="295"
-            text-anchor="middle"
-            font-size="26"
-            font-weight="bold"
-            fill="#f1c40f"
-            font-family="Arial">
-        ${safeName}
-      </text>
-    </svg>`;
-
-    const nameImg = await loadImage(Buffer.from(svg));
-    ctx.drawImage(nameImg, 0, 0);
+    // welcome-text png optional
+    try {
+      const welcomeText = await loadImage("./welcome-text.png");
+      ctx.drawImage(welcomeText, 285, 185, 330, 85);
+    } catch {
+      console.log("welcome-text.png tidak ditemukan / unsupported");
+    }
 
     const attachment = new AttachmentBuilder(await canvas.encode("png"), {
       name: "welcome.png"
@@ -138,7 +119,7 @@ client.on("guildMemberAdd", async (member) => {
 
 > Baca <#${README_ID}> terlebih dahulu dan ambil role disini <#${ROLE_ID}>
 > Jangan lupa mengisi data diri kalian di sini <#${INTRO_ID}> ya.
-> Jika ada kendala langsung tanya kepada ADMIN/PENJAGA kami`,
+> Jika ada kendala langsung tanya kepada **ADMIN/PENJAGA** kami`,
       embeds: [embed],
       files: [attachment]
     });
