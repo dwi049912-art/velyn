@@ -105,13 +105,17 @@ client.on("guildMemberAdd", async (member) => {
     // WELCOME
     ctx.fillStyle = "#FFD700";
     ctx.textAlign = "center";
-    ctx.font = "bold 68px Arial";
+    ctx.font = "bold 68px Sans";
     ctx.fillText("WELCOME", 450, 255);
 
     // USERNAME
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 30px Arial";
+    ctx.font = "bold 30px Sans";
     ctx.fillText(member.user.username.toUpperCase(), 450, 300);
+
+    // TEST MARKER
+    ctx.fillStyle = "#ff0000";
+    ctx.fillRect(445, 245, 10, 10);
 
     const attachment = new AttachmentBuilder(await canvas.encode("png"), {
       name: "welcome.png"
