@@ -39,6 +39,7 @@ let connection;
 async function joinVC() {
   const guild = client.guilds.cache.get(GUILD_ID);
   if (!guild) return;
+
   const channel = guild.channels.cache.get(VOICE_CHANNEL_ID);
   if (!channel) return;
 
@@ -64,10 +65,8 @@ client.once("ready", () => {
 
 client.on("guildMemberAdd", async (member) => {
   try {
-    console.log("member join:", member.user.tag);
-
     const channel = member.guild.channels.cache.get(WELCOME_CHANNEL_ID);
-    if (!channel) return console.log("channel welcome tidak ditemukan");
+    if (!channel) return;
 
     const canvas = createCanvas(900, 350);
     const ctx = canvas.getContext("2d");
@@ -79,6 +78,7 @@ client.on("guildMemberAdd", async (member) => {
       member.user.displayAvatarURL({ extension: "png", size: 512 })
     );
 
+    // avatar
     ctx.save();
     ctx.beginPath();
     ctx.arc(450, 105, 82, 0, Math.PI * 2);
@@ -87,23 +87,12 @@ client.on("guildMemberAdd", async (member) => {
     ctx.drawImage(avatar, 368, 23, 164, 164);
     ctx.restore();
 
+    // border emas
     ctx.beginPath();
     ctx.arc(450, 105, 85, 0, Math.PI * 2);
     ctx.strokeStyle = "#f1c40f";
     ctx.lineWidth = 5;
     ctx.stroke();
-
-    ctx.fillStyle = "rgba(0,0,0,0.75)";
-    ctx.fillRect(220, 200, 460, 115);
-
-    ctx.fillStyle = "#FFD700";
-    ctx.textAlign = "center";
-    ctx.font = "bold 68px Sans";
-    ctx.fillText("WELCOME", 450, 255);
-
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 30px Sans";
-    ctx.fillText(member.user.username.toUpperCase(), 450, 300);
 
     const attachment = new AttachmentBuilder(await canvas.encode("png"), {
       name: "welcome.png"
@@ -119,6 +108,8 @@ client.on("guildMemberAdd", async (member) => {
     await channel.send({
       content:
 `Halo ${member} Selamat datang di BETHLEHEM!
+
+**WELCOME — ${member.user.username}**
 
 > Baca <#${README_ID}> terlebih dahulu dan ambil role disini <#${ROLE_ID}>
 > Jangan lupa mengisi data diri kalian di sini <#${INTRO_ID}> ya.
