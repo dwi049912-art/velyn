@@ -71,14 +71,15 @@ client.on("guildMemberAdd", async (member) => {
     const canvas = createCanvas(900, 350);
     const ctx = canvas.getContext("2d");
 
+    // background
     const bg = await loadImage("./welcome-bg.png");
     ctx.drawImage(bg, 0, 0, 900, 350);
 
+    // avatar
     const avatar = await loadImage(
       member.user.displayAvatarURL({ extension: "png", size: 512 })
     );
 
-    // avatar
     ctx.save();
     ctx.beginPath();
     ctx.arc(450, 105, 82, 0, Math.PI * 2);
@@ -94,6 +95,32 @@ client.on("guildMemberAdd", async (member) => {
     ctx.lineWidth = 5;
     ctx.stroke();
 
+    // tulisan WELCOME dari png
+    const welcomeText = await loadImage("./welcome-text.png");
+    ctx.drawImage(welcomeText, 285, 190, 330, 90);
+
+    // nama user di gambar (SVG)
+    const safeName = member.user.username
+      .toUpperCase()
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="900" height="350">
+      <text x="450" y="300"
+            text-anchor="middle"
+            font-size="28"
+            font-weight="bold"
+            fill="#f1c40f"
+            font-family="Arial">
+            ${safeName}
+      </text>
+    </svg>`;
+
+    const nameImg = await loadImage(Buffer.from(svg));
+    ctx.drawImage(nameImg, 0, 0);
+
     const attachment = new AttachmentBuilder(await canvas.encode("png"), {
       name: "welcome.png"
     });
@@ -108,8 +135,6 @@ client.on("guildMemberAdd", async (member) => {
     await channel.send({
       content:
 `Halo ${member} Selamat datang di BETHLEHEM!
-
-**WELCOME — ${member.user.username}**
 
 > Baca <#${README_ID}> terlebih dahulu dan ambil role disini <#${ROLE_ID}>
 > Jangan lupa mengisi data diri kalian di sini <#${INTRO_ID}> ya.
