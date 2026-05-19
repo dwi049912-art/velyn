@@ -168,6 +168,8 @@ async function updateHeistEmbed() {
       `Jangan sembarang klik tombol cooldown.`
       `Gunakan seperlunya sambil menunggu sistem otomatis dirilis oleh MARUN.`
       `**TERIMA KASIH.**`
+      `🟢 = READY`
+      `🔴 = COOLDWOWN`
     )
     .setFooter({
       text: "BETLEHEM • Copyright ©️2018 - BTHL",
