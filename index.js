@@ -30,7 +30,7 @@ const client = new Client({
 
 const GUILD_ID = "489687951253700619";
 const VOICE_CHANNEL_ID = "1488854856633680083";
-const HEIST_CHANNEL_ID = "1498061270165884928";
+const HEIST_CHANNEL_ID = "1506240501052084284";
 
 const ADMIN_CHANNEL_ID = "1506240501052084284";
 const ADMIN_ROLE_ID = "1488133045532885132";
@@ -38,6 +38,7 @@ const ADMIN_ROLE_ID = "1488133045532885132";
 const FILE = "./cooldowns.json";
 const MSG_FILE = "./heist-message.json";
 const ADMIN_MSG_FILE = "./admin-message.json";
+
 const HEIST_COOLDOWN = 4 * 60 * 60 * 1000;
 
 const REGION_EMOJI = {
@@ -70,10 +71,12 @@ function saveData() {
 
 function format(ms) {
   if (ms <= 0) return "READY";
+
   const total = Math.floor(ms / 1000);
   const h = String(Math.floor(total / 3600)).padStart(2, "0");
   const m = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
   const s = String(total % 60).padStart(2, "0");
+
   return `${h}:${m}:${s}`;
 }
 
@@ -85,14 +88,14 @@ function heistButtons() {
       new ButtonBuilder()
         .setCustomId("cd_libertera")
         .setLabel("Libertera")
-        .setEmoji({ id: "1506205615494791219", name: "liber" })
+        .setEmoji("1506205615494791219")
         .setStyle(ButtonStyle.Primary)
         .setDisabled(regions.libertera > now),
 
       new ButtonBuilder()
         .setCustomId("cd_warvane")
         .setLabel("Warvane")
-        .setEmoji({ id: "1506205556124160102", name: "warv" })
+        .setEmoji("1506205556124160102")
         .setStyle(ButtonStyle.Primary)
         .setDisabled(regions.warvane > now)
     ),
@@ -101,14 +104,14 @@ function heistButtons() {
       new ButtonBuilder()
         .setCustomId("cd_elorioa")
         .setLabel("Elorioa")
-        .setEmoji({ id: "1506205490135171177", name: "elo" })
+        .setEmoji("1506205490135171177")
         .setStyle(ButtonStyle.Primary)
         .setDisabled(regions.elorioa > now),
 
       new ButtonBuilder()
         .setCustomId("cd_ambarino")
         .setLabel("Ambarino")
-        .setEmoji({ id: "1506205430626390076", name: "amb" })
+        .setEmoji("1506205430626390076")
         .setStyle(ButtonStyle.Primary)
         .setDisabled(regions.ambarino > now)
     )
@@ -150,8 +153,7 @@ async function updateHeistEmbed() {
 
   const status = (time) => {
     const left = time - now;
-    if (left <= 0) return "🟢 READY";
-    return `🔴 ${format(left)}`;
+    return left <= 0 ? "🟢 READY" : `🔴 ${format(left)}`;
   };
 
   const embed = new EmbedBuilder()
@@ -165,11 +167,11 @@ async function updateHeistEmbed() {
       `━━━━━━━━━━━━━━━━━━\n\n` +
       `⚠️ **PENGUMUMAN**\n` +
       `Panel ini masih manual, mohon gunakan dengan bijak.\n` +
-      `Jangan sembarang klik tombol cooldown.`
-      `Gunakan seperlunya sambil menunggu sistem otomatis dirilis oleh MARUN.`
-      `**TERIMA KASIH.**`
-      `🟢 = READY`
-      `🔴 = COOLDWOWN`
+      `Jangan sembarang klik tombol cooldown.\n` +
+      `Gunakan seperlunya sambil menunggu sistem otomatis dirilis oleh MARUN.\n` +
+      `**TERIMA KASIH.**\n\n` +
+      `🟢 = READY\n` +
+      `🔴 = COOLDOWN`
     )
     .setFooter({
       text: "BETLEHEM • Copyright ©️2018 - BTHL",
@@ -179,7 +181,7 @@ async function updateHeistEmbed() {
   await heistMessage.edit({
     embeds: [embed],
     components: heistButtons()
-  }).catch(() => {});
+  }).catch(console.error);
 }
 
 async function createAdminPanel() {
@@ -204,7 +206,7 @@ async function createAdminPanel() {
         new EmbedBuilder()
           .setColor("#992d22")
           .setTitle("ADMIN RESET PANEL")
-          .setDescription("Gunakan untuk reset cooldown region.")
+          .setDescription("Gunakan panel ini untuk reset cooldown region.")
       ],
       components: adminButtons()
     });
@@ -245,21 +247,22 @@ async function joinVC() {
 
 client.once("clientReady", async () => {
   console.log(`${client.user.tag} online`);
+
   joinVC();
 
   const channel = await client.channels.fetch(HEIST_CHANNEL_ID);
   if (!channel) return;
 
-  let messageId = null;
+  let msgId = null;
 
   if (fs.existsSync(MSG_FILE)) {
     try {
-      messageId = JSON.parse(fs.readFileSync(MSG_FILE)).messageId;
+      msgId = JSON.parse(fs.readFileSync(MSG_FILE)).messageId;
     } catch {}
   }
 
   try {
-    if (messageId) heistMessage = await channel.messages.fetch(messageId);
+    if (msgId) heistMessage = await channel.messages.fetch(msgId);
   } catch {}
 
   if (!heistMessage) {
@@ -295,7 +298,10 @@ client.on("interactionCreate", async (interaction) => {
             .setColor("#e74c3c")
             .setTitle("REGION MASIH COOLDOWN")
             .setDescription(`${REGION_EMOJI[region]} **${region.toUpperCase()}**\n⏳ ${format(regions[region] - now)}`)
-            .setFooter({ text: "BETLEHEM • Copyright ©️2018 - BTHL", iconURL: guildIcon })
+            .setFooter({
+              text: "BETLEHEM • Copyright ©️2018 - BTHL",
+              iconURL: guildIcon
+            })
         ],
         ephemeral: true
       });
@@ -303,6 +309,7 @@ client.on("interactionCreate", async (interaction) => {
 
     regions[region] = now + HEIST_COOLDOWN;
     saveData();
+
     await updateHeistEmbed();
 
     return interaction.reply({
@@ -311,7 +318,10 @@ client.on("interactionCreate", async (interaction) => {
           .setColor("#2ecc71")
           .setTitle("COOLDOWN DIMULAI")
           .setDescription(`${REGION_EMOJI[region]} **${region.toUpperCase()}**\n⏰ 04:00:00`)
-          .setFooter({ text: "BETLEHEM • Copyright ©️2018 - BTHL", iconURL: guildIcon })
+          .setFooter({
+            text: "BETLEHEM • Copyright ©️2018 - BTHL",
+            iconURL: guildIcon
+          })
       ],
       ephemeral: true
     });
@@ -320,26 +330,34 @@ client.on("interactionCreate", async (interaction) => {
   if (interaction.customId.startsWith("reset_")) {
     if (!interaction.member.roles.cache.has(ADMIN_ROLE_ID)) {
       return interaction.reply({
-        content: "Tidak punya akses.",
-        ephemeral: true
+        ephemeral: true,
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#e74c3c")
+            .setTitle("AKSES DITOLAK")
+            .setDescription("Dirimu tidak memiliki akses reset.")
+        ]
       });
     }
 
     const region = interaction.customId.replace("reset_", "");
     regions[region] = 0;
-    saveData();
 
+    saveData();
     await updateHeistEmbed();
 
     return interaction.reply({
+      ephemeral: true,
       embeds: [
         new EmbedBuilder()
           .setColor("#f1c40f")
           .setTitle("COOLDOWN DIRESET")
           .setDescription(`${REGION_EMOJI[region]} **${region.toUpperCase()}** berhasil direset.`)
-          .setFooter({ text: "BETLEHEM • Copyright ©️2018 - BTHL", iconURL: guildIcon })
-      ],
-      ephemeral: true
+          .setFooter({
+            text: "BETLEHEM • Copyright ©️2018 - BTHL",
+            iconURL: guildIcon
+          })
+      ]
     });
   }
 });
