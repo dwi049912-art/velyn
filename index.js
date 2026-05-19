@@ -56,6 +56,7 @@ if (fs.existsSync(FILE)) {
   try {
     regions = JSON.parse(fs.readFileSync(FILE));
   } catch {}
+
 }
 
 function saveData() {
@@ -124,18 +125,18 @@ async function updateHeistEmbed(channel) {
     .setColor("#d4af37")
     .setTitle("╔════════════════════╗\n   REGION HEIST CONTROL\n╚════════════════════╝")
     .setDescription(
-      `⚠️ **PENGUMUMAN SISTEM**\n` +
-      `Panel ini masih menggunakan **sistem manual**, mohon gunakan dengan bijak.\n` +
-      `Jangan sembarangan menekan tombol cooldown karena tindakan tersebut dapat mengganggu sistem dan merugikan pihak lain.\n` +
-      `Gunakan fitur ini dengan baik selagi menunggu update otomatis untuk pendeteksian cooldown region.\n` +
-      `Terima kasih atas kerja samanya.\n\n` +
-
-      `━━━━━━━━━━━━━━━━━━\n\n` +
-
       `${REGION_EMOJI.libertera} **Libertera**\n${status(regions.libertera)}\n\n` +
       `${REGION_EMOJI.warvane} **Warvane**\n${status(regions.warvane)}\n\n` +
       `${REGION_EMOJI.elorioa} **Elorioa**\n${status(regions.elorioa)}\n\n` +
-      `${REGION_EMOJI.ambarino} **Ambarino**\n${status(regions.ambarino)}`
+      `${REGION_EMOJI.ambarino} **Ambarino**\n${status(regions.ambarino)}\n\n` +
+
+      `━━━━━━━━━━━━━━━━━━\n\n` +
+
+      `⚠️ **PENGUMUMAN SISTEM**\n` +
+      `Panel ini masih menggunakan **sistem manual**.\n` +
+      `Mohon gunakan tombol dengan bijak dan jangan sembarangan menekan cooldown.\n` +
+      `Gunakan seperlunya sambil menunggu sistem otomatis dirilis MARUN.\n` +
+      `Terima kasih.`
     )
     .setFooter({
       text: "BETLEHEM • Copyright ©️2018 - BTHL",
