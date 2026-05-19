@@ -23,16 +23,21 @@ const {
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildVoiceStates
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMembers
   ]
 });
 
 const GUILD_ID = "489687951253700619";
 const VOICE_CHANNEL_ID = "1488854856633680083";
-const HEIST_CHANNEL_ID = "1506218942883172392";
+const HEIST_CHANNEL_ID = "1498061270165884928";
+
+const ADMIN_CHANNEL_ID = "1506240501052084284";
+const ADMIN_ROLE_ID = "1488133045532885132";
 
 const FILE = "./cooldowns.json";
 const MSG_FILE = "./heist-message.json";
+const ADMIN_MSG_FILE = "./admin-message.json";
 const HEIST_COOLDOWN = 4 * 60 * 60 * 1000;
 
 const REGION_EMOJI = {
@@ -44,6 +49,7 @@ const REGION_EMOJI = {
 
 let connection;
 let heistMessage = null;
+let adminMessage = null;
 
 let regions = {
   libertera: 0,
@@ -56,7 +62,6 @@ if (fs.existsSync(FILE)) {
   try {
     regions = JSON.parse(fs.readFileSync(FILE));
   } catch {}
-
 }
 
 function saveData() {
@@ -110,7 +115,35 @@ function heistButtons() {
   ];
 }
 
-async function updateHeistEmbed(channel) {
+function adminButtons() {
+  return [
+    new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("reset_libertera")
+        .setLabel("Reset Libertera")
+        .setStyle(ButtonStyle.Danger),
+
+      new ButtonBuilder()
+        .setCustomId("reset_warvane")
+        .setLabel("Reset Warvane")
+        .setStyle(ButtonStyle.Danger)
+    ),
+
+    new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("reset_elorioa")
+        .setLabel("Reset Elorioa")
+        .setStyle(ButtonStyle.Danger),
+
+      new ButtonBuilder()
+        .setCustomId("reset_ambarino")
+        .setLabel("Reset Ambarino")
+        .setStyle(ButtonStyle.Danger)
+    )
+  ];
+}
+
+async function updateHeistEmbed() {
   if (!heistMessage) return;
 
   const now = Date.now();
@@ -123,20 +156,18 @@ async function updateHeistEmbed(channel) {
 
   const embed = new EmbedBuilder()
     .setColor("#d4af37")
-    .setTitle("╔════════════════════╗\n   REGION HEIST COOLDOWN\n╚════════════════════╝")
+    .setTitle("╔════════════════════╗\n   REGION HEIST COOLDOWN BY BETHLEHEM\n╚════════════════════╝")
     .setDescription(
       `${REGION_EMOJI.libertera} **Libertera**\n${status(regions.libertera)}\n\n` +
       `${REGION_EMOJI.warvane} **Warvane**\n${status(regions.warvane)}\n\n` +
       `${REGION_EMOJI.elorioa} **Elorioa**\n${status(regions.elorioa)}\n\n` +
       `${REGION_EMOJI.ambarino} **Ambarino**\n${status(regions.ambarino)}\n\n` +
-
       `━━━━━━━━━━━━━━━━━━\n\n` +
-
-      `⚠️ **PENGUMUMAN SISTEM**\n` +
-      `Panel ini masih menggunakan **sistem manual**.\n` +
-      `Mohon gunakan tombol dengan bijak dan jangan sembarangan menekan cooldown.\n` +
-      `Gunakan seperlunya sambil menunggu sistem otomatis dirilis oleh **MARUN**.\n` +
-      `Terima kasih.`
+      `⚠️ **PENGUMUMAN**\n` +
+      `Panel ini masih manual, mohon gunakan dengan bijak.\n` +
+      `Jangan sembarang klik tombol cooldown.`
+      `Gunakan seperlunya sambil menunggu sistem otomatis dirilis oleh MARUN.`
+      `**TERIMA KASIH.**`
     )
     .setFooter({
       text: "BETLEHEM • Copyright ©️2018 - BTHL",
@@ -147,6 +178,39 @@ async function updateHeistEmbed(channel) {
     embeds: [embed],
     components: heistButtons()
   }).catch(() => {});
+}
+
+async function createAdminPanel() {
+  const channel = await client.channels.fetch(ADMIN_CHANNEL_ID);
+  if (!channel) return;
+
+  let msgId = null;
+
+  if (fs.existsSync(ADMIN_MSG_FILE)) {
+    try {
+      msgId = JSON.parse(fs.readFileSync(ADMIN_MSG_FILE)).messageId;
+    } catch {}
+  }
+
+  try {
+    if (msgId) adminMessage = await channel.messages.fetch(msgId);
+  } catch {}
+
+  if (!adminMessage) {
+    adminMessage = await channel.send({
+      embeds: [
+        new EmbedBuilder()
+          .setColor("#992d22")
+          .setTitle("ADMIN RESET PANEL")
+          .setDescription("Gunakan untuk reset cooldown region.")
+      ],
+      components: adminButtons()
+    });
+
+    fs.writeFileSync(ADMIN_MSG_FILE, JSON.stringify({
+      messageId: adminMessage.id
+    }));
+  }
 }
 
 async function joinVC() {
@@ -193,18 +257,12 @@ client.once("clientReady", async () => {
   }
 
   try {
-    if (messageId) {
-      heistMessage = await channel.messages.fetch(messageId);
-    }
+    if (messageId) heistMessage = await channel.messages.fetch(messageId);
   } catch {}
 
   if (!heistMessage) {
     heistMessage = await channel.send({
-      embeds: [
-        new EmbedBuilder()
-          .setTitle("REGION HEIST CONTROL")
-          .setDescription("Loading...")
-      ],
+      embeds: [new EmbedBuilder().setTitle("Loading...")],
       components: heistButtons()
     });
 
@@ -213,59 +271,75 @@ client.once("clientReady", async () => {
     }));
   }
 
-  updateHeistEmbed(channel);
+  await createAdminPanel();
+  await updateHeistEmbed();
 
-  setInterval(async () => {
-    await updateHeistEmbed(channel);
-  }, 1000);
+  setInterval(updateHeistEmbed, 1000);
 });
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isButton()) return;
-  if (!interaction.customId.startsWith("cd_")) return;
 
-  const region = interaction.customId.replace("cd_", "");
-  const now = Date.now();
   const guildIcon = interaction.guild.iconURL({ dynamic: true });
 
-  if (regions[region] > now) {
+  if (interaction.customId.startsWith("cd_")) {
+    const region = interaction.customId.replace("cd_", "");
+    const now = Date.now();
+
+    if (regions[region] > now) {
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#e74c3c")
+            .setTitle("REGION MASIH COOLDOWN")
+            .setDescription(`${REGION_EMOJI[region]} **${region.toUpperCase()}**\n⏳ ${format(regions[region] - now)}`)
+            .setFooter({ text: "BETLEHEM • Copyright ©️2018 - BTHL", iconURL: guildIcon })
+        ],
+        ephemeral: true
+      });
+    }
+
+    regions[region] = now + HEIST_COOLDOWN;
+    saveData();
+    await updateHeistEmbed();
+
     return interaction.reply({
       embeds: [
         new EmbedBuilder()
-          .setColor("#e74c3c")
-          .setTitle("REGION MASIH COOLDOWN")
-          .setDescription(
-            `${REGION_EMOJI[region]} **${region.toUpperCase()}** masih dalam cooldown.\n\n⏳ Sisa waktu: \`${format(regions[region] - now)}\``
-          )
-          .setFooter({
-            text: "BETLEHEM • Copyright ©️2018 - BTHL",
-            iconURL: guildIcon
-          })
+          .setColor("#2ecc71")
+          .setTitle("COOLDOWN DIMULAI")
+          .setDescription(`${REGION_EMOJI[region]} **${region.toUpperCase()}**\n⏰ 04:00:00`)
+          .setFooter({ text: "BETLEHEM • Copyright ©️2018 - BTHL", iconURL: guildIcon })
       ],
       ephemeral: true
     });
   }
 
-  regions[region] = now + HEIST_COOLDOWN;
-  saveData();
+  if (interaction.customId.startsWith("reset_")) {
+    if (!interaction.member.roles.cache.has(ADMIN_ROLE_ID)) {
+      return interaction.reply({
+        content: "Tidak punya akses.",
+        ephemeral: true
+      });
+    }
 
-  await updateHeistEmbed(interaction.channel);
+    const region = interaction.customId.replace("reset_", "");
+    regions[region] = 0;
+    saveData();
 
-  await interaction.reply({
-    embeds: [
-      new EmbedBuilder()
-        .setColor("#2ecc71")
-        .setTitle("COOLDOWN DIMULAI")
-        .setDescription(
-          `${REGION_EMOJI[region]} **${region.toUpperCase()}** berhasil diaktifkan.\n\n⏰ Durasi: \`04:00:00\``
-        )
-        .setFooter({
-          text: "BETLEHEM • Copyright ©️2018 - BTHL",
-          iconURL: guildIcon
-        })
-    ],
-    ephemeral: true
-  });
+    await updateHeistEmbed();
+
+    return interaction.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor("#f1c40f")
+          .setTitle("COOLDOWN DIRESET")
+          .setDescription(`${REGION_EMOJI[region]} **${region.toUpperCase()}** berhasil direset.`)
+          .setFooter({ text: "BETLEHEM • Copyright ©️2018 - BTHL", iconURL: guildIcon })
+      ],
+      ephemeral: true
+    });
+  }
 });
 
 client.login(process.env.TOKEN);
