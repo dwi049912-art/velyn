@@ -126,7 +126,8 @@ async function updateHeistEmbed(channel) {
       `${REGION_EMOJI.ambarino} **Ambarino**\n${status(regions.ambarino)}`
     )
     .setFooter({
-      text: `BETLEHEM • Copyright ©️2018 - BTHL • ${new Date().toLocaleTimeString("id-ID")}`
+      text: `BETLEHEM • Copyright ©️2018 - BTHL • ${new Date().toLocaleTimeString("id-ID")}`,
+      iconURL: client.guilds.cache.get(GUILD_ID)?.iconURL({ dynamic: true })
     })
     .setTimestamp();
 
@@ -213,10 +214,23 @@ client.on("interactionCreate", async (interaction) => {
 
   const region = interaction.customId.replace("cd_", "");
   const now = Date.now();
+  const guildIcon = interaction.guild.iconURL({ dynamic: true });
 
   if (regions[region] > now) {
     return interaction.reply({
-      content: `⚠️ ${region.toUpperCase()} masih cooldown.\nSisa: ${format(regions[region] - now)}`,
+      embeds: [
+        new EmbedBuilder()
+          .setColor("#e74c3c")
+          .setTitle("REGION MASIH COOLDOWN")
+          .setDescription(
+            `${REGION_EMOJI[region]} **${region.toUpperCase()}** masih dalam cooldown.\n\n⏳ Sisa waktu: \`${format(regions[region] - now)}\``
+          )
+          .setFooter({
+            text: "BETLEHEM • Copyright ©️2018 - BTHL",
+            iconURL: guildIcon
+          })
+          .setTimestamp()
+      ],
       ephemeral: true
     });
   }
@@ -227,7 +241,19 @@ client.on("interactionCreate", async (interaction) => {
   await updateHeistEmbed(interaction.channel);
 
   await interaction.reply({
-    content: `✅ ${region.toUpperCase()} cooldown dimulai (4 jam)`,
+    embeds: [
+      new EmbedBuilder()
+        .setColor("#2ecc71")
+        .setTitle("COOLDOWN DIMULAI")
+        .setDescription(
+          `${REGION_EMOJI[region]} **${region.toUpperCase()}** berhasil diaktifkan.\n\n⏰ Durasi: \`04:00:00\``
+        )
+        .setFooter({
+          text: "BETLEHEM • Copyright ©️2018 - BTHL",
+          iconURL: guildIcon
+        })
+        .setTimestamp()
+    ],
     ephemeral: true
   });
 });
