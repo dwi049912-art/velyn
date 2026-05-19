@@ -79,12 +79,14 @@ function heistButtons() {
       new ButtonBuilder()
         .setCustomId("cd_libertera")
         .setLabel("Libertera")
+        .setEmoji({ id: "1506205615494791219", name: "liber" })
         .setStyle(ButtonStyle.Primary)
         .setDisabled(regions.libertera > now),
 
       new ButtonBuilder()
         .setCustomId("cd_warvane")
         .setLabel("Warvane")
+        .setEmoji({ id: "1506205556124160102", name: "warv" })
         .setStyle(ButtonStyle.Primary)
         .setDisabled(regions.warvane > now)
     ),
@@ -93,12 +95,14 @@ function heistButtons() {
       new ButtonBuilder()
         .setCustomId("cd_elorioa")
         .setLabel("Elorioa")
+        .setEmoji({ id: "1506205490135171177", name: "elo" })
         .setStyle(ButtonStyle.Primary)
         .setDisabled(regions.elorioa > now),
 
       new ButtonBuilder()
         .setCustomId("cd_ambarino")
         .setLabel("Ambarino")
+        .setEmoji({ id: "1506205430626390076", name: "amb" })
         .setStyle(ButtonStyle.Primary)
         .setDisabled(regions.ambarino > now)
     )
