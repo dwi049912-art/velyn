@@ -29,7 +29,7 @@ const client = new Client({
 
 const GUILD_ID = "489687951253700619";
 const VOICE_CHANNEL_ID = "1488854856633680083";
-const HEIST_CHANNEL_ID = "1498061270165884928";
+const HEIST_CHANNEL_ID = "1506218942883172392";
 
 const FILE = "./cooldowns.json";
 const MSG_FILE = "./heist-message.json";
@@ -123,7 +123,7 @@ async function updateHeistEmbed(channel) {
 
   const embed = new EmbedBuilder()
     .setColor("#d4af37")
-    .setTitle("╔════════════════════╗\n   REGION HEIST CONTROL\n╚════════════════════╝")
+    .setTitle("╔════════════════════╗\n   REGION HEIST COOLDOWN\n╚════════════════════╝")
     .setDescription(
       `${REGION_EMOJI.libertera} **Libertera**\n${status(regions.libertera)}\n\n` +
       `${REGION_EMOJI.warvane} **Warvane**\n${status(regions.warvane)}\n\n` +
@@ -135,7 +135,7 @@ async function updateHeistEmbed(channel) {
       `⚠️ **PENGUMUMAN SISTEM**\n` +
       `Panel ini masih menggunakan **sistem manual**.\n` +
       `Mohon gunakan tombol dengan bijak dan jangan sembarangan menekan cooldown.\n` +
-      `Gunakan seperlunya sambil menunggu sistem otomatis dirilis MARUN.\n` +
+      `Gunakan seperlunya sambil menunggu sistem otomatis dirilis.\n` +
       `Terima kasih.`
     )
     .setFooter({
