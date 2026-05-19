@@ -130,10 +130,9 @@ async function updateHeistEmbed(channel) {
       `${REGION_EMOJI.ambarino} **Ambarino**\n${status(regions.ambarino)}`
     )
     .setFooter({
-      text: `BETLEHEM • Copyright ©️2018 - BTHL • ${new Date().toLocaleTimeString("id-ID")}`,
+      text: "BETLEHEM • Copyright ©️2018 - BTHL",
       iconURL: client.guilds.cache.get(GUILD_ID)?.iconURL({ dynamic: true })
-    })
-    .setTimestamp();
+    });
 
   await heistMessage.edit({
     embeds: [embed],
@@ -233,7 +232,6 @@ client.on("interactionCreate", async (interaction) => {
             text: "BETLEHEM • Copyright ©️2018 - BTHL",
             iconURL: guildIcon
           })
-          .setTimestamp()
       ],
       ephemeral: true
     });
@@ -256,7 +254,6 @@ client.on("interactionCreate", async (interaction) => {
           text: "BETLEHEM • Copyright ©️2018 - BTHL",
           iconURL: guildIcon
         })
-        .setTimestamp()
     ],
     ephemeral: true
   });
