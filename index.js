@@ -135,7 +135,7 @@ async function updateHeistEmbed(channel) {
       `⚠️ **PENGUMUMAN SISTEM**\n` +
       `Panel ini masih menggunakan **sistem manual**.\n` +
       `Mohon gunakan tombol dengan bijak dan jangan sembarangan menekan cooldown.\n` +
-      `Gunakan seperlunya sambil menunggu sistem otomatis dirilis.\n` +
+      `Gunakan seperlunya sambil menunggu sistem otomatis dirilis oleh **MARUN**.\n` +
       `Terima kasih.`
     )
     .setFooter({
