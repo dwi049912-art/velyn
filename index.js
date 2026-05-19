@@ -65,14 +65,35 @@ function format(ms) {
 }
 
 function heistButtons() {
+  const now = Date.now();
+
   return [
     new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId("cd_libertera").setLabel("Libertera").setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId("cd_warvane").setLabel("Warvane").setStyle(ButtonStyle.Primary)
+      new ButtonBuilder()
+        .setCustomId("cd_libertera")
+        .setLabel("Libertera")
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(regions.libertera > now),
+
+      new ButtonBuilder()
+        .setCustomId("cd_warvane")
+        .setLabel("Warvane")
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(regions.warvane > now)
     ),
+
     new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId("cd_elorioa").setLabel("Elorioa").setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId("cd_ambarino").setLabel("Ambarino").setStyle(ButtonStyle.Primary)
+      new ButtonBuilder()
+        .setCustomId("cd_elorioa")
+        .setLabel("Elorioa")
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(regions.elorioa > now),
+
+      new ButtonBuilder()
+        .setCustomId("cd_ambarino")
+        .setLabel("Ambarino")
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(regions.ambarino > now)
     )
   ];
 }
@@ -90,7 +111,10 @@ async function updateHeistEmbed(channel) {
       `**Warvane** → ${format(regions.warvane - now)}\n` +
       `**Elorioa** → ${format(regions.elorioa - now)}\n` +
       `**Ambarino** → ${format(regions.ambarino - now)}`
-    );
+    )
+    .setFooter({
+      text: "BETLEHEM • Copyright ©️2018 - BTHL"
+    });
 
   await heistMessage.edit({
     embeds: [embed],
@@ -176,14 +200,22 @@ client.on("interactionCreate", async (interaction) => {
   if (!interaction.customId.startsWith("cd_")) return;
 
   const region = interaction.customId.replace("cd_", "");
+  const now = Date.now();
 
-  regions[region] = Date.now() + HEIST_COOLDOWN;
+  if (regions[region] > now) {
+    return interaction.reply({
+      content: `⚠️ ${region.toUpperCase()} masih cooldown.\nSisa: ${format(regions[region] - now)}`,
+      ephemeral: true
+    });
+  }
+
+  regions[region] = now + HEIST_COOLDOWN;
   saveData();
 
   await updateHeistEmbed(interaction.channel);
 
   await interaction.reply({
-    content: `${region.toUpperCase()} cooldown dimulai (4 jam)`,
+    content: `✅ ${region.toUpperCase()} cooldown dimulai (4 jam)`,
     ephemeral: true
   });
 });
