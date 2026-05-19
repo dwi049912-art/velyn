@@ -29,11 +29,18 @@ const client = new Client({
 
 const GUILD_ID = "489687951253700619";
 const VOICE_CHANNEL_ID = "1488854856633680083";
-const HEIST_CHANNEL_ID = "1504467268799565945";
+const HEIST_CHANNEL_ID = "1498061270165884928";
 
 const FILE = "./cooldowns.json";
 const MSG_FILE = "./heist-message.json";
 const HEIST_COOLDOWN = 4 * 60 * 60 * 1000;
+
+const REGION_EMOJI = {
+  libertera: "<:liber:1506205615494791219>",
+  warvane: "<:warv:1506205556124160102>",
+  elorioa: "<:elo:1506205490135171177>",
+  ambarino: "<:amb:1506205430626390076>"
+};
 
 let connection;
 let heistMessage = null;
@@ -103,18 +110,25 @@ async function updateHeistEmbed(channel) {
 
   const now = Date.now();
 
+  const status = (time) => {
+    const left = time - now;
+    if (left <= 0) return "🟢 READY";
+    return `🔴 ${format(left)}`;
+  };
+
   const embed = new EmbedBuilder()
-    .setColor("#f1c40f")
-    .setTitle("REGION HEIST COOLDOWN")
+    .setColor("#d4af37")
+    .setTitle("╔════════════════════╗\n   REGION HEIST CONTROL\n╚════════════════════╝")
     .setDescription(
-      `**Libertera** → ${format(regions.libertera - now)}\n` +
-      `**Warvane** → ${format(regions.warvane - now)}\n` +
-      `**Elorioa** → ${format(regions.elorioa - now)}\n` +
-      `**Ambarino** → ${format(regions.ambarino - now)}`
+      `${REGION_EMOJI.libertera} **Libertera**\n${status(regions.libertera)}\n\n` +
+      `${REGION_EMOJI.warvane} **Warvane**\n${status(regions.warvane)}\n\n` +
+      `${REGION_EMOJI.elorioa} **Elorioa**\n${status(regions.elorioa)}\n\n` +
+      `${REGION_EMOJI.ambarino} **Ambarino**\n${status(regions.ambarino)}`
     )
     .setFooter({
-      text: "BETLEHEM • Copyright ©️2018 - BTHL"
-    });
+      text: `BETLEHEM • Copyright ©️2018 - BTHL • ${new Date().toLocaleTimeString("id-ID")}`
+    })
+    .setTimestamp();
 
   await heistMessage.edit({
     embeds: [embed],
@@ -125,10 +139,10 @@ async function updateHeistEmbed(channel) {
 async function joinVC() {
   try {
     const guild = client.guilds.cache.get(GUILD_ID);
-    if (!guild) return console.log("Guild tidak ditemukan");
+    if (!guild) return;
 
     const channel = guild.channels.cache.get(VOICE_CHANNEL_ID);
-    if (!channel) return console.log("Voice channel tidak ditemukan");
+    if (!channel) return;
 
     connection = joinVoiceChannel({
       channelId: channel.id,
@@ -141,12 +155,10 @@ async function joinVC() {
       try {
         await entersState(connection, VoiceConnectionStatus.Signalling, 5000);
       } catch {
-        console.log("Rejoin voice...");
         setTimeout(joinVC, 5000);
       }
     });
 
-    console.log("Bot masuk voice");
   } catch (err) {
     console.error(err);
   }
@@ -177,7 +189,7 @@ client.once("clientReady", async () => {
     heistMessage = await channel.send({
       embeds: [
         new EmbedBuilder()
-          .setTitle("REGION HEIST COOLDOWN")
+          .setTitle("REGION HEIST CONTROL")
           .setDescription("Loading...")
       ],
       components: heistButtons()
