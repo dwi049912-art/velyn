@@ -102,11 +102,11 @@ function heistButtons() {
 
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId("cd_elorioa")
-        .setLabel("Elorioa")
+        .setCustomId("cd_eloria")
+        .setLabel("Eloria")
         .setEmoji("1506205490135171177")
         .setStyle(ButtonStyle.Primary)
-        .setDisabled(regions.elorioa > now),
+        .setDisabled(regions.eloria > now),
 
       new ButtonBuilder()
         .setCustomId("cd_ambarino")
@@ -134,8 +134,8 @@ function adminButtons() {
 
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId("reset_elorioa")
-        .setLabel("Reset Elorioa")
+        .setCustomId("reset_eloria")
+        .setLabel("Reset Eloria")
         .setStyle(ButtonStyle.Danger),
 
       new ButtonBuilder()
@@ -162,7 +162,7 @@ async function updateHeistEmbed() {
     .setDescription(
       `${REGION_EMOJI.libertera} **Libertera**\n${status(regions.libertera)}\n\n` +
       `${REGION_EMOJI.warvane} **Warvane**\n${status(regions.warvane)}\n\n` +
-      `${REGION_EMOJI.elorioa} **Elorioa**\n${status(regions.elorioa)}\n\n` +
+      `${REGION_EMOJI.eloria} **Eloria**\n${status(regions.eloria)}\n\n` +
       `${REGION_EMOJI.ambarino} **Ambarino**\n${status(regions.ambarino)}\n\n` +
       `━━━━━━━━━━━━━━━━━━\n\n` +
       `⚠️ **PENGUMUMAN**\n` +
