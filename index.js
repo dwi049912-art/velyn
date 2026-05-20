@@ -303,7 +303,7 @@ client.on("interactionCreate", async (interaction) => {
               iconURL: guildIcon
             })
         ],
-        ephemeral: true
+        flags: 64
       });
     }
 
@@ -323,14 +323,14 @@ client.on("interactionCreate", async (interaction) => {
             iconURL: guildIcon
           })
       ],
-      ephemeral: true
+      flags: 64
     });
   }
 
   if (interaction.customId.startsWith("reset_")) {
     if (!interaction.member.roles.cache.has(ADMIN_ROLE_ID)) {
       return interaction.reply({
-        ephemeral: true,
+        flags: 64,
         embeds: [
           new EmbedBuilder()
             .setColor("#e74c3c")
@@ -347,7 +347,7 @@ client.on("interactionCreate", async (interaction) => {
     await updateHeistEmbed();
 
     return interaction.reply({
-      ephemeral: true,
+      flags: 64,
       embeds: [
         new EmbedBuilder()
           .setColor("#f1c40f")
