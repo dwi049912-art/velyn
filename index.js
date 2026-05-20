@@ -102,11 +102,11 @@ function heistButtons() {
 
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId("cd_eloria")
-        .setLabel("Eloria")
+        .setCustomId("cd_elorioa")
+        .setLabel("Elorioa")
         .setEmoji("1506205490135171177")
         .setStyle(ButtonStyle.Primary)
-        .setDisabled(regions.eloria > now),
+        .setDisabled(regions.elorioa > now),
 
       new ButtonBuilder()
         .setCustomId("cd_ambarino")
@@ -134,8 +134,8 @@ function adminButtons() {
 
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId("reset_eloria")
-        .setLabel("Reset Eloria")
+        .setCustomId("reset_elorioa")
+        .setLabel("Reset Elorioa")
         .setStyle(ButtonStyle.Danger),
 
       new ButtonBuilder()
@@ -162,7 +162,7 @@ async function updateHeistEmbed() {
     .setDescription(
       `${REGION_EMOJI.libertera} **Libertera**\n${status(regions.libertera)}\n\n` +
       `${REGION_EMOJI.warvane} **Warvane**\n${status(regions.warvane)}\n\n` +
-      `${REGION_EMOJI.eloria} **Eloria**\n${status(regions.eloria)}\n\n` +
+      `${REGION_EMOJI.elorioa} **Elorioa**\n${status(regions.elorioa)}\n\n` +
       `${REGION_EMOJI.ambarino} **Ambarino**\n${status(regions.ambarino)}\n\n` +
       `━━━━━━━━━━━━━━━━━━\n\n` +
       `⚠️ **PENGUMUMAN**\n` +
@@ -181,7 +181,7 @@ async function updateHeistEmbed() {
   await heistMessage.edit({
     embeds: [embed],
     components: heistButtons()
-  }).catch(console.error);
+  }).catch(() => {});
 }
 
 async function createAdminPanel() {
@@ -240,9 +240,7 @@ async function joinVC() {
       }
     });
 
-  } catch (err) {
-    console.error(err);
-  }
+  } catch {}
 }
 
 client.once("clientReady", async () => {
@@ -279,11 +277,21 @@ client.once("clientReady", async () => {
   await createAdminPanel();
   await updateHeistEmbed();
 
-  setInterval(updateHeistEmbed, 1000);
+  setInterval(async () => {
+    try {
+      await updateHeistEmbed();
+    } catch {}
+  }, 1500);
 });
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isButton()) return;
+
+  try {
+    await interaction.deferReply({ flags: 64 });
+  } catch {
+    return;
+  }
 
   const guildIcon = interaction.guild.iconURL({ dynamic: true });
 
@@ -292,7 +300,7 @@ client.on("interactionCreate", async (interaction) => {
     const now = Date.now();
 
     if (regions[region] > now) {
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("#e74c3c")
@@ -302,17 +310,15 @@ client.on("interactionCreate", async (interaction) => {
               text: "BETLEHEM • Copyright ©️2018 - BTHL",
               iconURL: guildIcon
             })
-        ],
-        flags: 64
+        ]
       });
     }
 
     regions[region] = now + HEIST_COOLDOWN;
     saveData();
-
     await updateHeistEmbed();
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [
         new EmbedBuilder()
           .setColor("#2ecc71")
@@ -322,15 +328,13 @@ client.on("interactionCreate", async (interaction) => {
             text: "BETLEHEM • Copyright ©️2018 - BTHL",
             iconURL: guildIcon
           })
-      ],
-      flags: 64
+      ]
     });
   }
 
   if (interaction.customId.startsWith("reset_")) {
     if (!interaction.member.roles.cache.has(ADMIN_ROLE_ID)) {
-      return interaction.reply({
-        flags: 64,
+      return interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("#e74c3c")
@@ -346,8 +350,7 @@ client.on("interactionCreate", async (interaction) => {
     saveData();
     await updateHeistEmbed();
 
-    return interaction.reply({
-      flags: 64,
+    return interaction.editReply({
       embeds: [
         new EmbedBuilder()
           .setColor("#f1c40f")
